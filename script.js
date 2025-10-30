@@ -20,14 +20,24 @@ let touchStartX = 0;
 let touchStartY = 0;
 let minSwipeDistance = 50; // Minimum distance for swipe gesture
 
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+// Initialize AudioContext - will be created after user interaction
+let audioContext = null;
 
-// Add a click listener to resume audio context
-document.body.addEventListener('click', () => {
+// Function to initialize/resume audio context
+const initAudioContext = () => {
+    if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
     if (audioContext.state === 'suspended') {
         audioContext.resume();
     }
-});
+    return audioContext;
+};
+
+// Add multiple event listeners to resume audio context (required by browsers)
+document.addEventListener('click', initAudioContext, { once: false });
+document.addEventListener('touchstart', initAudioContext, { once: false });
+document.addEventListener('keydown', initAudioContext, { once: false });
 
 // Haptic feedback function
 const hapticFeedback = (type = 'light') => {
@@ -133,16 +143,27 @@ gameBoard.addEventListener('touchend', handleTouchEnd, { passive: false });
 
 // Create longer, more arcade-style sound effects
 const playSound = (type) => {
-    if (!audioContext || audioContext.state === 'suspended') return;
+    // Initialize audio context if needed
+    const ctx = initAudioContext();
+    if (!ctx || ctx.state === 'suspended') {
+        // Try to resume if suspended
+        if (ctx && ctx.state === 'suspended') {
+            ctx.resume().catch(() => {
+                // If resume fails, audio won't play - that's okay
+                return;
+            });
+        }
+        return;
+    }
 
-    const now = audioContext.currentTime;
+    const now = ctx.currentTime;
     const duration = type === 'win' ? 1.2 : type === 'lose' ? 1.0 : type === 'draw' ? 0.8 : 0.3;
 
     switch (type) {
         case 'move':
             // Bouncy arcade beep for moves
-            const osc1 = audioContext.createOscillator();
-            const gain1 = audioContext.createGain();
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
             osc1.type = 'square';
             osc1.frequency.setValueAtTime(400, now);
             osc1.frequency.exponentialRampToValueAtTime(600, now + 0.15);
@@ -150,7 +171,7 @@ const playSound = (type) => {
             gain1.gain.setValueAtTime(0.3, now);
             gain1.gain.exponentialRampToValueAtTime(0.01, now + duration);
             osc1.connect(gain1);
-            gain1.connect(audioContext.destination);
+            gain1.connect(ctx.destination);
             osc1.start(now);
             osc1.stop(now + duration);
             break;
@@ -159,15 +180,15 @@ const playSound = (type) => {
             // Victory fanfare - ascending chord sequence
             const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
             notes.forEach((freq, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(freq, now);
                 gain.gain.setValueAtTime(0, now + i * 0.15);
                 gain.gain.linearRampToValueAtTime(0.4, now + i * 0.15 + 0.05);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + duration - i * 0.1);
                 osc.connect(gain);
-                gain.connect(audioContext.destination);
+                gain.connect(ctx.destination);
                 osc.start(now + i * 0.15);
                 osc.stop(now + duration);
             });
@@ -177,15 +198,15 @@ const playSound = (type) => {
             // Defeat sound - descending notes
             const loseNotes = [523.25, 440, 349.23, 261.63]; // C5, A4, F4, C4
             loseNotes.forEach((freq, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
                 osc.type = 'sawtooth';
                 osc.frequency.setValueAtTime(freq, now);
                 gain.gain.setValueAtTime(0, now + i * 0.2);
                 gain.gain.linearRampToValueAtTime(0.35, now + i * 0.2 + 0.05);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.2 + 0.25);
                 osc.connect(gain);
-                gain.connect(audioContext.destination);
+                gain.connect(ctx.destination);
                 osc.start(now + i * 0.2);
                 osc.stop(now + i * 0.2 + 0.3);
             });
@@ -194,15 +215,15 @@ const playSound = (type) => {
         case 'draw':
             // Neutral draw sound - two tones
             [440, 523.25].forEach((freq, i) => {
-                const osc = audioContext.createOscillator();
-                const gain = audioContext.createGain();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
                 osc.type = 'triangle';
                 osc.frequency.setValueAtTime(freq, now + i * 0.2);
                 gain.gain.setValueAtTime(0, now + i * 0.2);
                 gain.gain.linearRampToValueAtTime(0.3, now + i * 0.2 + 0.05);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.2 + 0.35);
                 osc.connect(gain);
-                gain.connect(audioContext.destination);
+                gain.connect(ctx.destination);
                 osc.start(now + i * 0.2);
                 osc.stop(now + i * 0.2 + 0.4);
             });
@@ -210,8 +231,8 @@ const playSound = (type) => {
 
         case 'restart':
             // Quick restart beep
-            const osc2 = audioContext.createOscillator();
-            const gain2 = audioContext.createGain();
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
             osc2.type = 'square';
             osc2.frequency.setValueAtTime(600, now);
             osc2.frequency.exponentialRampToValueAtTime(800, now + 0.15);
