@@ -5,36 +5,42 @@ body {
     align-items: center;
     background-color: #282c34;
     color: white;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
 h1 {
     color: red;
+    margin: 0.5em 0;
+    font-size: clamp(1.5em, 5vw, 2.5em);
 }
 
 .scoreboard {
     display: flex;
     justify-content: space-around;
-    width: 300px;
+    width: min(300px, 90vw);
     margin-bottom: 20px;
-    font-size: 1.2em;
+    font-size: clamp(1em, 3vw, 1.2em);
 }
 
 .game-board {
     display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
+    grid-template-columns: repeat(3, min(100px, 25vw));
+    grid-template-rows: repeat(3, min(100px, 25vw));
     gap: 5px;
+    max-width: 90vw;
 }
 
 .cell {
-    width: 100px;
-    height: 100px;
+    width: 100%;
+    aspect-ratio: 1;
     background-color: #61dafb;
     border: 2px solid #282c34;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 3em;
+    font-size: clamp(2em, 8vw, 3em);
     cursor: pointer;
     transition: background-color 0.3s;
 }
@@ -72,23 +78,50 @@ h1 {
 
 .game-over-message {
     margin-top: 20px;
-    font-size: 1.5em;
+    font-size: clamp(1.2em, 4vw, 1.5em);
     color: #ff4757;
     height: 30px;
+    text-align: center;
 }
 
 #restart-button {
     margin-top: 20px;
     padding: 10px 20px;
-    font-size: 1em;
+    font-size: clamp(0.9em, 3vw, 1em);
     cursor: pointer;
     background-color: #61dafb;
     border: none;
     color: #282c34;
     border-radius: 5px;
     transition: background-color 0.3s;
+    min-width: 120px;
 }
 
 #restart-button:hover {
     background-color: #4a9eb4;
+}
+
+/* Media queries for better mobile experience */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
+    .scoreboard {
+        width: 100%;
+        font-size: 0.9em;
+    }
+    
+    .game-board {
+        gap: 3px;
+    }
+    
+    .cell {
+        border-width: 1px;
+    }
+    
+    #restart-button {
+        width: 100%;
+        max-width: 200px;
+    }
 }
