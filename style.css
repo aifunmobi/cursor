@@ -84,21 +84,91 @@ h1 {
     text-align: center;
 }
 
-#restart-button {
+.button-group {
+    display: flex;
+    gap: 10px;
     margin-top: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#restart-button, #undo-button, #install-button {
     padding: 10px 20px;
     font-size: clamp(0.9em, 3vw, 1em);
     cursor: pointer;
-    background-color: #61dafb;
     border: none;
     color: #282c34;
     border-radius: 5px;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, transform 0.1s;
     min-width: 120px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
-#restart-button:hover {
+#restart-button {
+    background-color: #61dafb;
+}
+
+#restart-button:hover, #restart-button:active {
     background-color: #4a9eb4;
+    transform: scale(0.98);
+}
+
+#undo-button {
+    background-color: #ffa502;
+    display: none;
+}
+
+#undo-button:enabled:hover, #undo-button:enabled:active {
+    background-color: #ff8c00;
+    transform: scale(0.98);
+}
+
+#undo-button:disabled {
+    background-color: #555;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+#install-button {
+    background-color: #2ed573;
+}
+
+#install-button:hover, #install-button:active {
+    background-color: #26d466;
+    transform: scale(0.98);
+}
+
+.swipe-hint {
+    margin-top: 15px;
+    font-size: clamp(0.8em, 2.5vw, 0.9em);
+    color: #61dafb;
+    text-align: center;
+    opacity: 0.7;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .swipe-hint {
+        display: block;
+    }
+    
+    #undo-button {
+        display: block;
+    }
+}
+
+/* Touch-optimized cell styles */
+.cell {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.cell:active {
+    transform: scale(0.95);
+    transition: transform 0.1s;
 }
 
 /* Media queries for better mobile experience */
@@ -120,8 +190,17 @@ h1 {
         border-width: 1px;
     }
     
-    #restart-button {
+    .button-group {
+        width: 100%;
+    }
+    
+    #restart-button, #undo-button {
         width: 100%;
         max-width: 200px;
+    }
+    
+    .swipe-hint {
+        font-size: 0.85em;
+        padding: 0 10px;
     }
 }

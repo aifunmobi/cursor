@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#61dafb">
+    <meta name="description" content="A colorful and feature-rich Tic Tac Toe game with PWA support">
     <title>Colorful Tic Tac Toe</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
     <h1>Tic Tac Toe</h1>
@@ -24,7 +28,11 @@
         <div class="cell" data-cell></div>
     </div>
     <div class="game-over-message" id="game-over-message"></div>
-    <button id="restart-button">Restart</button>
+    <div class="button-group">
+        <button id="undo-button" title="Swipe left/right on board to undo">Undo</button>
+        <button id="restart-button">Restart</button>
+    </div>
+    <div class="swipe-hint" id="swipe-hint">💡 Swipe left or right on the board to undo</div>
 
     <script src="script.js"></script>
 </body>
